@@ -5,7 +5,7 @@ OUT=os.path.join(ROOT,'prices.json')
 
 # These are the default holdings. The app can add more symbols later; this daily job
 # focuses on the user's initial three symbols plus USD/TWD.
-TICKERS=['2330.TW','00981A.TW','TSMY']
+TICKERS=['2330.TW','00981A.TW','2880.TW','2892.TW','TSMY']
 
 def get_json(url):
     req=urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0 investment-pwa/5'})
@@ -47,17 +47,18 @@ def main():
 
     for t in TICKERS:
         try:
-            if t.endswith('.TW') and tw is not None:
-                code=t[:-3]
-                row=tw.get(code)
-                if not row:
-                    raise RuntimeError('TWSE 找不到代號 '+code)
-                close=row.get('ClosingPrice')
-                if close in (None,'','-'):
-                    raise RuntimeError('TWSE 無收盤價')
-                # TWSE API date is in Minguo year format in some feeds; use update day as published date.
-                d=datetime.datetime.now(datetime.timezone.utc).date().isoformat()
-                data['prices'][t]={'price':float(str(close).replace(',','')),'date':d,'currency':'TWD','source':'TWSE OpenAPI'}
+            if t.endswith('.TW'):
+                # Prefer TWSE; fall back to Yahoo if TWSE has no row/price.
+                if tw is not None:
+                    code=t[:-3]
+                    row=tw.get(code)
+                    close=row.get('ClosingPrice') if row else None
+                    if close not in (None,'','-'):
+                        d=datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+                        data['prices'][t]={'price':float(str(close).replace(',','')),'date':d,'currency':'TWD','source':'TWSE OpenAPI'}
+                        continue
+                p,d,s=yahoo(t)
+                data['prices'][t]={'price':p,'date':d,'currency':'TWD','source':s+' fallback'}
             else:
                 p,d,s=yahoo(t)
                 data['prices'][t]={'price':p,'date':d,'currency':'USD','source':s}
