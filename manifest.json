@@ -1,0 +1,10 @@
+{
+  "name": "投資收益管理",
+  "short_name": "投資收益",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
+  "lang": "zh-Hant",
+  "icons": []
+}
