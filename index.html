@@ -11,7 +11,7 @@
 @media(max-width:520px){
   main{padding:14px 10px 34px}.top{align-items:flex-start}.top h1{font-size:23px}.top button{padding:8px 10px;font-size:14px}
   .card{border-radius:14px;padding:13px}.stats{gap:8px}.stats .card{padding:13px}.value{font-size:20px}
-  .table{overflow:visible}.table>table{display:table}.holding-mobile{display:block}
+  .table{overflow:visible}.table>table{display:table}.holding-table{display:none}.holding-mobile{display:block}
   .holding-card{border:1px solid #29324a;border-radius:14px;padding:12px;margin-bottom:10px;background:#151b2e}
   .holding-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:16px}
   .holding-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 14px}
@@ -124,7 +124,7 @@ function renderView(h){
       const p=state.prices[t]??0,mv=a.qty*quoteTWD(t,p),fx=isUSD(t)?(state.fx.USD_TWD||31.83):1,costTWD=a.cost*fx,g=mv-costTWD,ub=latestBuy(t),perShare=a.qty?a.cost/a.qty:0;
       return `<tr><td><b>${t}</b></td><td>${a.qty.toLocaleString()}</td><td>${rawMoney(t,perShare)}</td><td>${isUSD(t)?"US$":"NT$"}${Number(a.cost).toLocaleString("en-US",{minimumFractionDigits:isUSD(t)?2:0,maximumFractionDigits:isUSD(t)?2:0})}</td><td>${money(costTWD)}</td><td>${p?rawMoney(t,p):"—"}</td><td>${p?twdMoney(t,p):"—"}</td><td>${money(mv)}</td><td class="${g>=0?"pos":"neg"}">${money(g)}</td><td class="pos">${money(dividendByTicker(t))}</td><td>${ub?`<button data-edit-hold="${t}">修改</button> <button data-del-hold="${ub.id}">刪除</button>`:""}</td></tr>`;
     }).join("");
-    v.innerHTML=`<h3 style="margin-top:0">持股</h3><div class="table"><table><thead><tr><th>代號</th><th>股數</th><th>每股成本<br><span class="muted">原幣</span></th><th>成本<br><span class="muted">原幣</span></th><th>成本<br><span class="muted">台幣</span></th><th>最新價<br><span class="muted">原幣</span></th><th>最新價<br><span class="muted">台幣</span></th><th>市值<br><span class="muted">台幣</span></th><th>損益</th><th>累計股息</th><th></th></tr></thead><tbody>${rows}</tbody></table><div class="holding-mobile">${cards}</div></div><div class="hint muted">持股成本依交易紀錄計算；原始持股與後來新增的買入紀錄都可以修改或刪除。每股成本為原幣成本 ÷ 持股股數。最新價每天更新一次。</div>`;
+    v.innerHTML=`<h3 style="margin-top:0">持股</h3><div class="table holding-table"><table><thead><tr><th>代號</th><th>股數</th><th>每股成本<br><span class="muted">原幣</span></th><th>成本<br><span class="muted">原幣</span></th><th>成本<br><span class="muted">台幣</span></th><th>最新價<br><span class="muted">原幣</span></th><th>最新價<br><span class="muted">台幣</span></th><th>市值<br><span class="muted">台幣</span></th><th>損益</th><th>累計股息</th><th></th></tr></thead><tbody>${rows}</tbody></table><div class="holding-mobile">${cards}</div></div><div class="hint muted">持股成本依交易紀錄計算；原始持股與後來新增的買入紀錄都可以修改或刪除。每股成本為原幣成本 ÷ 持股股數。最新價每天更新一次。</div>`;
   }else if(currentView==="trades"){
     const rows=state.records.filter(r=>r.type!=="dividend");
     v.innerHTML=`<h3 style="margin-top:0">交易紀錄</h3><div class="table"><table><thead><tr><th>日期</th><th>類型</th><th>代號</th><th>股數</th><th>價格</th><th>金額</th><th></th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.date}</td><td>${r.type==="buy"?"買入":r.type==="sell"?"賣出":"利息"}</td><td><b>${r.ticker}</b></td><td>${r.qty}</td><td>${r.price}</td><td>${money(r.qty*r.price)}</td><td><button data-edit="${r.id}">修改</button> <button data-del="${r.id}">刪除</button></td></tr>`).join("")}</tbody></table></div>`;
